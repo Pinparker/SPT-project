@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    test
     <div class="header">
       <div class="h-left">
         <span class="l-box">
