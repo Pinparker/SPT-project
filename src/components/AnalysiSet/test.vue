@@ -12,14 +12,10 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 export default {
   name: "ThreeTest",
   data: function () {
-    return {
-    };
+    return {};
   },
-  methods: {
-  },
-  mounted: function () {
-   
-  },
+  methods: {},
+  mounted: function () {},
 };
 </script>
 

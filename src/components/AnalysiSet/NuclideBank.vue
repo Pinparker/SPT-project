@@ -3,7 +3,7 @@
     <div class="atom">
       <!-- <canvas ref="canvas"></canvas> -->
       <el-image
-        style="width: 56%; height: 100%;"
+        style="width: 56%; height: 100%"
         :src="atomicUrl"
         fit="contain"
       ></el-image>
@@ -565,7 +565,7 @@ export default {
           nuclide: "63Eu",
           atomicUrl: require("@/assets/images/63Eu.webp"),
         });
-        console.log("table", this.tableData.length);
+        // console.log("table", this.tableData.length);
       }
     },
     addNuclide() {
@@ -724,7 +724,7 @@ export default {
   },
   mounted() {
     this.getData();
-    this.webGLinit();
+    // this.webGLinit();
   },
 };
 </script>
@@ -742,14 +742,14 @@ export default {
     right: 8px;
     top: 12px;
     overflow: hidden;
-    canvas {
+    /* canvas {
       width: 252px;
       height: 120px;
-    }
-    img {
+    } */
+    /* img {
       width: 56%;
       height: 100%;
-    }
+    } */
   }
   // del_table-scrollable
   /*   .el-table--scrollable-y ::-webkit-scrollbar {

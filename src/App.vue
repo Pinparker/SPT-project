@@ -170,6 +170,18 @@
           <p class="stop" ref="stopMsg">停止</p>
         </span>
       </div>
+      <!--  <div class="h-left">
+        <el-menu
+          :default-active="activeIndex"
+          mode="horizontal"
+          @select="handleSelect"
+        >
+          <el-menu-item index="1">数据总览</el-menu-item>
+          <el-menu-item index="2">采集设置</el-menu-item>
+          <el-menu-item index="3">分析设置</el-menu-item>
+          <el-menu-item index="4">运行状态</el-menu-item>
+        </el-menu>
+      </div> -->
       <div class="h-center">
         <h1 class="gradient-text">SPTSystem</h1>
       </div>
@@ -231,7 +243,8 @@
       ></span>
     </div>
     <div class="body">
-      <div id="binChart" ref="canvas"></div>
+      <!-- <div id="binChart" ref="canvas"></div> -->
+      <Echarts ref="chart"></Echarts>
     </div>
     <el-dialog width="38rem" title="采集设置" :visible.sync="collectionSetBox">
       <CollectionSetBox> </CollectionSetBox>
@@ -263,10 +276,12 @@ import * as echarts from "echarts";
 import CollectionSetBox from "./components/CollectionSet.vue";
 import FileOutput from "./components/FileOutput.vue";
 import AnalysiSet from "./components/AnalysiSet.vue";
+import Echarts from "./components/Echarts/EchartsApp.vue";
 export default {
-  components: { CollectionSetBox, FileOutput, AnalysiSet },
+  components: { CollectionSetBox, FileOutput, AnalysiSet, Echarts },
   data: function () {
     return {
+      activeIndex: "1",
       fileList: [],
       stopImg1: true,
       stopImg2: false,
@@ -303,7 +318,9 @@ export default {
         this.openIt = false;
       }
     },
-
+    getChart() {
+      this.$refs.chart.init();
+    },
     iChart() {
       let myChart = echarts.init(document.getElementById("binChart"));
       window.addEventListener("resize", function () {
@@ -460,11 +477,17 @@ export default {
             type: "line",
             smooth: true,
             symbol: "none",
-           /*  symbolSize: 20,
+            /*  symbolSize: 20,
             symbol:
               "path://M51.911,16.242C51.152,7.888,45.239,1.827,37.839,1.827c-4.93,0-9.444,2.653-11.984,6.905 c-2.517-4.307-6.846-6.906-11.697-6.906c-7.399,0-13.313,6.061-14.071,14.415c-0.06,0.369-0.306,2.311,0.442,5.478 c1.078,4.568,3.568,8.723,7.199,12.013l18.115,16.439l18.426-16.438c3.631-3.291,6.121-7.445,7.199-12.014 C52.216,18.553,51.97,16.611,51.911,16.242z",
             */
             sampling: "lttb",
+            // sampling:折线图在数据量远大于像素点时候的降采样策略，开启后可以有效的优化图表的绘制效率，默认关闭，也就是全部绘制不过滤数据点。
+            // "lttb" 采用 Largest-Triangle-Three-Bucket 算法，可以最大程度保证采样后线条的趋势，形状和极值
+            // 'average' 取过滤点的平均值
+            // 'max' 取过滤点的最大值
+            // 'min' 取过滤点的最小值
+            // 'sum' 取过滤点的和
             itemStyle: {
               color: "rgb(245, 70, 70, 0.89)",
             },
@@ -485,9 +508,9 @@ export default {
         ],
       };
 
-      option && myChart.setOption(option);
+      // option && myChart.setOption(option);
+      myChart.setOption(option && option);
     },
-
     downloadFile() {
       let aLink = document.createElement("a");
       let blob = this.base64ToBlob();
@@ -523,6 +546,9 @@ export default {
       console.log("打开文件内容：", file.name);
     },
   },
+  created() {
+    this.getChart();
+  },
   mounted: function () {
     this.iChart();
   },
@@ -538,219 +564,10 @@ html {
   height: 100%;
   min-width: 1100px;
   min-height: 40rem;
+  font-size: 16px;
 }
 </style>
+
 <style lang="scss" scoped>
-@mixin disJA {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-@mixin animationBtn {
-  background-position: right center; /* change the direction of the change here */
-  color: #fff;
-  text-decoration: none;
-}
-@mixin btnBack {
-  text-align: center;
-  text-transform: uppercase;
-  transition: 0.5s;
-  background-size: 200% auto;
-  box-shadow: 0 0 20px #eee;
-}
-@mixin textCol {
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-@function px2rem($px) {
-  @return $px / 20 * 1rem;
-}
-#app {
-  background: linear-gradient(45deg, #bee7e9 27%, #2980b9 85%);
-  // background: #9ce5e7e0;
-  // background: linear-gradient(45deg, #9be9d3 27%, #dba8e7 85%);
-  // background: linear-gradient(121deg, #8770eb 0%,#88a8ec 100%);
-  // background: linear-gradient(154deg, #44A08D 23%,#12F384 46%,#093637 88%);
-  text-align: center;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  #file-box {
-    margin-bottom: -3rem;
-  }
-  .header {
-    height: 28%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    .h-left {
-      height: 100%;
-      width: 45%;
-      display: flex;
-      align-items: center;
-      justify-content: space-evenly;
-      .l-box {
-        width: 20%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        .el-button {
-          width: 4rem;
-          height: 4rem;
-        }
-
-        .btn-grad1 {
-          background-image: linear-gradient(
-            to right,
-            #ece9e6 0%,
-            #ffffff 51%,
-            #ece9e6 100%
-          );
-          @include btnBack;
-        }
-
-        .btn-grad1:hover {
-          @include animationBtn;
-        }
-
-        .btn-grad2 {
-          background: linear-gradient(
-            to left,
-            #88b6e0 26%,
-            #936dc4e1 50%,
-            #4e92db 87%
-          );
-          @include btnBack;
-        }
-
-        .btn-grad2:hover {
-          @include animationBtn;
-        }
-
-        .btn-grad3 {
-          background-image: linear-gradient(
-            to right,
-            #4ca1af 0%,
-            #c4e0e5 51%,
-            #4ca1af 100%
-          );
-          @include btnBack;
-        }
-
-        .btn-grad3:hover {
-          @include animationBtn;
-        }
-
-        .btn-grad4 {
-          background-image: linear-gradient(
-            to right,
-            #ee0979 0%,
-            #ff6a00 51%,
-            #ee0979 100%
-          );
-          @include btnBack;
-        }
-
-        .btn-grad4:hover {
-          @include animationBtn;
-        }
-      }
-      .status {
-        height: 68%;
-        margin-top: -14px;
-        .stop {
-          margin-top: 8px;
-        }
-      }
-    }
-    .h-center {
-      .gradient-text {
-        font-size: px2rem(56);
-        font-weight: 550;
-        /* background: linear-gradient(
-          137deg,
-          #1f1c2c 33%,
-          rgba(149, 210, 237, 0.91) 51%,
-          #928dab 72%
-        );
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent; */
-        color: #1f1c2c;
-      }
-    }
-    .h-right {
-      height: 100%;
-      width: 46%;
-      display: flex;
-      justify-content: space-around;
-      flex-direction: row-reverse;
-      padding: 1rem;
-      flex-wrap: wrap;
-      align-items: center;
-      .el-divider {
-        background-color: #000;
-      }
-      p {
-        height: 16%;
-        @include disJA;
-      }
-      .gradient-text {
-        font-size: px2rem(26);
-        font-weight: 440;
-        background: linear-gradient(54deg, #12f384 22%, #093637 78%);
-        @include textCol;
-      }
-      .s-inp {
-        width: 100%;
-        height: 42%;
-        .el-input {
-          width: 26%;
-          margin-left: 4px;
-          margin-bottom: 4px;
-        }
-      }
-      .s-btn {
-        margin-top: 8px;
-        width: 84%;
-        height: 30%;
-        display: flex;
-        justify-content: space-evenly;
-        align-items: center;
-      }
-    }
-  }
-
-  .info {
-    height: 8%;
-    width: 100%;
-    @include disJA;
-    justify-content: space-evenly;
-    .info-box {
-      display: flex;
-      flex-direction: row;
-      width: 19%;
-      align-items: center;
-      span {
-        width: px2rem(180);
-      }
-    }
-  }
-
-  .body {
-    flex: 1;
-    display: flex;
-    border: 1px solid #000;
-    #binChart {
-      width: 96.6%;
-      height: 96%;
-    }
-  }
-  /* .footer {
-    flex: 1;
-    p {
-      color: rgb(255, 0, 98);
-    }
-  } */
-}
+@import "@/assets/styles/app.scss";
 </style>
